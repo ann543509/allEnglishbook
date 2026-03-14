@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>商務英語會話 (CIA 旗艦版)</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+    .font-serif-en { font-family: 'Merriweather', serif; }
+    
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    .animate-pulse-ring { animation: pulse-ring 1.5s infinite; }
+    
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-spin-slow { animation: spin-slow 2s linear infinite; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    .blind-mode-blur { filter: blur(6px); user-select: none; transition: filter 0.3s ease; cursor: help; }
+    .blind-mode-blur:hover { filter: blur(0px); }
+    
+    .word-correct { color: #16a34a; font-weight: bold; }
+    .word-missed { color: #dc2626; text-decoration: line-through; opacity: 0.6; }
+    
+    .cia-variable-btn { transition: all 0.2s ease; }
+    .cia-variable-btn:active { transform: scale(0.95); }
+    
+    .wave-bar { width: 4px; height: 12px; background-color: white; border-radius: 2px; animation: wave 1s ease-in-out infinite; }
+    .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes wave { 0%, 100% { height: 6px; } 50% { height: 14px; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div id="feedback-portal-root"></div>
+
+  <!-- ★ 所有資料合併於此，單檔即可執行 ★ -->
+  <script>
+    window.lecturesData = [
+      {
+        unitId: "Unit 1", title: "求職面試", themeColor: "blue",
+        objectives: ["掌握求職面試的開場與自我介紹", "流暢表達過往的工作經驗與優勢", "學會描述如何應對職場壓力"],
+        pronunciation: "注意重音位置與字尾子音的清晰度，善用連音技巧 (如 apply for, focus on)。",
+        vocab: [
+          { word: "Interview", kk: "[ˈɪntɚˌvju]", mean: "面試", tip: "重音在最前。中間 t 常被吞掉。" },
+          { word: "Employer", kk: "[ɪmˈplɔɪɚ]", mean: "雇主", tip: "重音在第二音節 ploy。" },
+          { word: "Pleasure", kk: "[ˈplɛʒɚ]", mean: "榮幸", tip: "s 發 [ʒ] (類似「熱」的捲舌音)。" },
+          { word: "Hire", kk: "[haɪr]", mean: "雇用", tip: "完整發出字尾 r 的捲舌音。" },
+          { word: "Role-playing", kk: "[rol ˈpleɪɪŋ]", mean: "角色扮演", tip: "Role 嘴型要圓。" },
+          { word: "Aligned", kk: "[əˈlaɪnd]", mean: "一致/符合", tip: "gn 不發音，只發 line。" },
+          { word: "Progressive", kk: "[prəˈgrɛsɪv]", mean: "連續/累積的", tip: "重音在中間 gre。" },
+          { word: "Hospitality", kk: "[ˌhɑspɪˈtæləti]", mean: "觀光/好客", tip: "重音在 ta。" },
+          { word: "Demanding", kk: "[dɪˈmændɪŋ]", mean: "要求高的", tip: "重音在 man，發蝴蝶音 [æ]。" },
+          { word: "Specific", kk: "[spɪˈsɪfɪk]", mean: "具體的", tip: "重音在中間 ci。" }
+        ],
+        sentences: [
+          { id: "s1-1", text: "Hi, can you <span class='highlight-kw'>help me with</span> my job interview?", plain: "Hi, can you help me with my job interview?", mean: "嗨，你能幫幫我練習求職面試嗎？", tip: "help me 中間 p 很輕。" },
+          { id: "s1-2", text: "I have three years' <span class='highlight-kw'>progressive experience</span> in the hospitality industry.", plain: "I have three years' progressive experience in the hospitality industry.", mean: "我在觀光產業已累積了三年的經驗。", tip: "progressive experience 後稍微停頓。" },
+          { id: "s1-3", text: "You should hire me because my experience is <span class='highlight-kw'>aligned with</span> the requirements.", plain: "You should hire me because my experience is aligned with the requirements.", mean: "因為我符合您的求才條件。", tip: "aligned_with 連音。" },
+          { id: "s1-4", text: "When I feel stressed, I <span class='highlight-kw'>focus on</span> my breathing.", plain: "When I feel stressed, I focus on my breathing.", mean: "當我感到壓力時，我會專注於呼吸。", tip: "focus_on 連音唸成 fo-kə-san。" },
+          { id: "s1-5", text: "Did you <span class='highlight-kw'>thoroughly</span> research the company?", plain: "Did you thoroughly research the company?", mean: "你有徹底研究這家公司嗎？", tip: "thoroughly 是魔王字，th 咬舌。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-1-1", plain: "I have three years' experience in the hospitality industry.", chinese: "我在觀光產業已累積了三年的經驗。",
+            parts: [
+              { type: "fixed", text: "I have " },
+              { id: "v1", type: "variable", options: ["three years'", "five years'", "extensive"], answer: "" },
+              { type: "fixed", text: " experience in the " },
+              { id: "v2", type: "variable", options: ["hospitality", "tech", "marketing"], answer: "" },
+              { type: "fixed", text: " industry." }
+            ]
+          },
+          {
+            id: "cia-1-2", plain: "Role-playing is my cup of tea.", chinese: "角色扮演是我拿手的。",
+            parts: [
+              { id: "v1", type: "variable", options: ["Role-playing", "Public speaking", "Data analysis"], answer: "" },
+              { type: "fixed", text: " is " },
+              { id: "v2", type: "variable", options: ["my cup of tea", "my strong suit", "my specialty"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-1-3", plain: "When I feel stressed, I focus on my breathing.", chinese: "當我感到壓力時，我會專注於呼吸。",
+            parts: [
+              { type: "fixed", text: "When I feel stressed, I " },
+              { id: "v1", type: "variable", options: ["focus on my breathing", "take a short walk", "prioritize my tasks"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 2", title: "商務參展", themeColor: "amber",
+        objectives: ["學會預定商展攤位與規格詢問", "清楚表達各類展位特色(如中島、半島型)", "理解並確認報價與套裝內容包含項目"],
+        pronunciation: "留意複合名詞的重音(如 Trade show 在前)，以及字尾 s 的發音變化(清濁音)。",
+        vocab: [
+          { word: "Exhibition", kk: "[ˌɛksəˈbɪʃən]", mean: "展覽", tip: "ex 唸 [ɛks]；h 不發音。" },
+          { word: "Peninsula", kk: "[pəˈnɪnsələ]", mean: "半島型展位", tip: "重音在 nin。" },
+          { word: "Island", kk: "[ˈaɪlənd]", mean: "中島型展位", tip: "注意 s 不發音！唸 Eye-land。" },
+          { word: "Budget", kk: "[ˈbʌdʒɪt]", mean: "預算", tip: "u 發短音 [ʌ]；dg 發 [dʒ]。" },
+          { word: "Dimension", kk: "[dɪˈmɛnʃən]", mean: "尺寸/面積", tip: "重音在 men。" },
+          { word: "Comprise", kk: "[kəmˈpraɪz]", mean: "包含", tip: "重音在後 prise。" },
+          { word: "Surrounded", kk: "[səˈraʊndɪd]", mean: "被環繞的", tip: "重音在 roun。" },
+          { word: "VAT", kk: "[vi e ti]", mean: "加值稅", tip: "直接唸字母 V-A-T。" }
+        ],
+        sentences: [
+          { id: "s2-1", text: "I am calling to <span class='highlight-kw'>book a</span> booth for the Exhibition.", plain: "I am calling to book a booth for the Exhibition.", mean: "我打來是要預定展覽的攤位。", tip: "book a 連音 (boo-ka)。" },
+          { id: "s2-2", text: "We have linear booths, <span class='highlight-kw'>corner</span> booths, and <span class='highlight-kw'>island</span> booths.", plain: "We have linear booths, corner booths, and island booths.", mean: "我們有線型、角落和中島式展位。", tip: "列舉時前面語調上揚，最後下降。" },
+          { id: "s2-3", text: "They are totally different <span class='highlight-kw'>in terms of</span> size, dimensions, and price.", plain: "They are totally different in terms of size, dimensions, and price.", mean: "它們在尺寸、面積和價格上完全不同。", tip: "in terms of (就...而言) 連讀。" },
+          { id: "s2-4", text: "It will be NT$ 95,000 with a <span class='highlight-kw'>package</span>.", plain: "It will be ninety-five thousand NT dollars with a package.", mean: "套裝方案是九萬五千元。", tip: "95,000 唸 ninety-five thousand。" },
+          { id: "s2-5", text: "How do I <span class='highlight-kw'>proceed</span> with the booking?", plain: "How do I proceed with the booking?", mean: "我該如何繼續預定的手續呢？", tip: "do I 連音 (du-wai)。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-2-1", plain: "I am calling to book a booth for the trade show.", chinese: "我打來是要預定商展的攤位。",
+            parts: [
+              { type: "fixed", text: "I am calling to " },
+              { id: "v1", type: "variable", options: ["book a booth", "confirm the details", "ask for a quote"], answer: "" },
+              { type: "fixed", text: " for the " },
+              { id: "v2", type: "variable", options: ["trade show", "upcoming event", "exhibition"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-2-2", plain: "They are totally different in terms of size and price.", chinese: "它們在尺寸和價格上完全不同。",
+            parts: [
+              { type: "fixed", text: "They are totally different " },
+              { id: "v1", type: "variable", options: ["in terms of", "when it comes to", "regarding"], answer: "" },
+              { type: "fixed", text: " size and " },
+              { id: "v2", type: "variable", options: ["price", "layout", "design"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-2-3", plain: "It will be NT$ 95,000 with a package.", chinese: "套裝方案是九萬五千元。",
+            parts: [
+              { type: "fixed", text: "It will be " },
+              { id: "v1", type: "variable", options: ["NT$ 95,000", "around $3000", "very cost-effective"], answer: "" },
+              { type: "fixed", text: " with a " },
+              { id: "v2", type: "variable", options: ["package", "discount", "standard setup"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 3", title: "參展會議", themeColor: "orange",
+        objectives: ["熟悉會議開場與引導討論的句型", "能精準提出產品優勢與展位佈置理由", "掌握會議中的同意(附議)與總結技巧"],
+        pronunciation: "訓練字尾 t/d 不完全爆破，使語流更貼近商務母語人士。",
+        vocab: [
+          { word: "Discuss", kk: "[dɪˈskʌs]", mean: "討論", tip: "重音在後 scuss。" },
+          { word: "Keen", kk: "[kin]", mean: "熱衷於", tip: "長音 [i]，嘴角要往兩邊拉開微笑。" },
+          { word: "Bulky", kk: "[ˈbʌlkɪ]", mean: "笨重的", tip: "l 的音要含在喉嚨裡。" },
+          { word: "Linger", kk: "[ˈlɪŋgɚ]", mean: "逗留", tip: "ng 發 [ŋg]，後面有 g 的聲音。" },
+          { word: "Cramped", kk: "[kræmpt]", mean: "擁擠的", tip: "字尾 mp 閉嘴後吐氣接 t。" },
+          { word: "Launch", kk: "[lɔntʃ]", mean: "發布/推出", tip: "[ɔ] 嘴巴成 O 型。" },
+          { word: "Occupy", kk: "[ˈɑkjəˌpaɪ]", mean: "佔據", tip: "重音在前 O。" },
+          { word: "Second", kk: "[ˈsɛkənd]", mean: "附議", tip: "會議用語。重音在 se。" }
+        ],
+        sentences: [
+          { id: "s3-1", text: "Now let's <span class='highlight-kw'>get the ball rolling</span>.", plain: "Now let's get the ball rolling.", mean: "現在讓我們開始討論吧！", tip: "慣用語：開始進行。" },
+          { id: "s3-2", text: "Sorry, I didn't <span class='highlight-kw'>catch</span> the last few words.", plain: "Sorry, I didn't catch the last few words.", mean: "抱歉，我沒聽清楚最後幾個字。", tip: "catch 的 t 不發音。" },
+          { id: "s3-3", text: "Why are you all so <span class='highlight-kw'>keen on</span> a peninsula booth?", plain: "Why are you all so keen on a peninsula booth?", mean: "為什麼你們都對半島展位情有獨鍾？", tip: "keen on 連音 (kee-non)。" },
+          { id: "s3-4", text: "A <span class='highlight-kw'>spacious</span> booth will encourage buyers to <span class='highlight-kw'>linger</span>.", plain: "A spacious booth will encourage buyers to linger.", mean: "寬敞的展位有助於買家逗留久一點。", tip: "linger (逗留) 是好字。" },
+          { id: "s3-5", text: "If nobody has anything else to add, then let's <span class='highlight-kw'>call it a day</span>.", plain: "If nobody has anything else to add, then let's call it a day.", mean: "如果沒有其它動議，那就散會吧！", tip: "call it a day (散會) 連讀。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-3-1", plain: "Now let's get the ball rolling.", chinese: "現在讓我們開始討論吧！",
+            parts: [
+              { type: "fixed", text: "Now let's " },
+              { id: "v1", type: "variable", options: ["get the ball rolling", "move on to the next item", "wrap this up"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-3-2", plain: "I think we would go for the peninsula booth.", chinese: "我想我們會選擇半島式展位。",
+            parts: [
+              { type: "fixed", text: "I think we would " },
+              { id: "v1", type: "variable", options: ["go for", "opt for", "choose"], answer: "" },
+              { type: "fixed", text: " the " },
+              { id: "v2", type: "variable", options: ["peninsula", "corner", "island"], answer: "" },
+              { type: "fixed", text: " booth." }
+            ]
+          },
+          {
+            id: "cia-3-3", plain: "A spacious booth will encourage the buyers to linger inside longer.", chinese: "寬敞的展位有助於買家逗留久一點。",
+            parts: [
+              { type: "fixed", text: "A " },
+              { id: "v1", type: "variable", options: ["spacious", "well-lit", "welcoming"], answer: "" },
+              { type: "fixed", text: " booth will encourage the buyers to " },
+              { id: "v2", type: "variable", options: ["linger inside longer", "engage with our team", "test the products"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 4", title: "設備檢查", themeColor: "teal",
+        objectives: ["能與現場經理確認場地與座位安排", "學會詢問網路連線與硬體操作方式", "具備描述與排除基礎設備故障的口說能力"],
+        pronunciation: "熟悉資訊科技相關詞彙的自然弱讀與連讀 (如 connected to, built-in)。",
+        vocab: [
+          { word: "Venue", kk: "[ˈvɛnju]", mean: "場地", tip: "字尾 [u] 要噘嘴。" },
+          { word: "U-shaped", kk: "[ˈjuˌʃept]", mean: "馬蹄形的", tip: "尾音 t 要輕促。" },
+          { word: "Access", kk: "[ˈæksɛs]", mean: "存取/連接", tip: "重音在第一音節。" },
+          { word: "Built-in", kk: "[ˈbɪltˌɪn]", mean: "內建的", tip: "連讀時聽起來像 bil-tin。" },
+          { word: "Eco-friendly", kk: "[ˌikoˈfrɛndlɪ]", mean: "環保的", tip: "friendly 的 d 不發音。" },
+          { word: "Rehearsed", kk: "[rɪˈhɝst]", mean: "排練", tip: "hear 發 [hɝ] 捲舌。字尾 ed 發 [t]。" },
+          { word: "Pinpoint", kk: "[ˈpɪnˌpɔɪnt]", mean: "精確指出", tip: "兩個 p 都要噴氣。" },
+          { word: "Flattered", kk: "[ˈflætɚd]", mean: "受寵若驚", tip: "中間 tt 發輕快彈舌音 [d]。" }
+        ],
+        sentences: [
+          { id: "s4-1", text: "Is this the room where the meeting will be <span class='highlight-kw'>held</span>?", plain: "Is this the room where the meeting will be held?", mean: "這就是待會要舉行會議的房間嗎？", tip: "will be held 中間 h 氣音很弱。" },
+          { id: "s4-2", text: "I like the <span class='highlight-kw'>U-shaped</span> table arrangement.", plain: "I like the U-shaped table arrangement.", mean: "我喜歡這個馬蹄型會議桌的安排。", tip: "arrangement 重音在 range。" },
+          { id: "s4-3", text: "Once you <span class='highlight-kw'>turn on</span> your laptop, a wireless connection is available.", plain: "Once you turn on your laptop, a wireless connection is available.", mean: "一旦您開啟筆電，就可以使用無線網路。", tip: "turn on 連音。" },
+          { id: "s4-4", text: "Wait. <span class='highlight-kw'>How come</span> there's no sound coming out?", plain: "Wait. How come there's no sound coming out?", mean: "等等。怎麼會沒有聲音出來呢？", tip: "How come (怎麼會) 常見口語。" },
+          { id: "s4-5", text: "Could you <span class='highlight-kw'>go over</span> all the <span class='highlight-kw'>facilities</span> to ensure everything works?", plain: "Could you go over all the facilities to ensure everything works?", mean: "能否再檢查一次所有設施？", tip: "go over (檢查) 中間 w 滑音。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-4-1", plain: "I am here to make sure that you have everything you need.", chinese: "我在這裡是為了確保您擁有會議所需的一切。",
+            parts: [
+              { type: "fixed", text: "I am here to " },
+              { id: "v1", type: "variable", options: ["make sure", "ensure", "double check"], answer: "" },
+              { type: "fixed", text: " that you have " },
+              { id: "v2", type: "variable", options: ["everything you need", "the right equipment", "a stable connection"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-4-2", plain: "This wire here should be connected to this port.", chinese: "這條線應該要接到這個插孔。",
+            parts: [
+              { type: "fixed", text: "This " },
+              { id: "v1", type: "variable", options: ["wire", "cable", "adapter"], answer: "" },
+              { type: "fixed", text: " here should be " },
+              { id: "v2", type: "variable", options: ["connected to", "plugged into", "inserted in"], answer: "" },
+              { type: "fixed", text: " this port." }
+            ]
+          },
+          {
+            id: "cia-4-3", plain: "Could you go over all the facilities to ensure everything works?", chinese: "能否再檢查一次所有設施確保運作？",
+            parts: [
+              { type: "fixed", text: "Could you " },
+              { id: "v1", type: "variable", options: ["go over", "check", "test"], answer: "" },
+              { type: "fixed", text: " all the " },
+              { id: "v2", type: "variable", options: ["facilities", "microphones", "AV equipment"], answer: "" },
+              { type: "fixed", text: " to ensure everything works?" }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 5", title: "差旅核銷", themeColor: "red",
+        objectives: ["能清楚解釋公司的費用核銷政策", "委婉拒絕不符合規定的開支要求", "說明實報實銷與日津貼的差異"],
+        pronunciation: "克服財務長難字(如 reimbursement, expenditure)的長音節與雙唇音連續切換。",
+        vocab: [
+          { word: "Reimbursement", kk: "[͵riɪmˋbɝsmənt]", mean: "核銷", tip: "難字挑戰。重音在 bur。" },
+          { word: "Subsistence", kk: "[səbˋsɪstəns]", mean: "生活(開支)", tip: "[b] 緊接 [s]，嘴唇閉一下。" },
+          { word: "Expenditure", kk: "[ɪkˋspɛndɪtʃɚ]", mean: "支出", tip: "重音在 pen。" },
+          { word: "Allowance", kk: "[əˋlaʊəns]", mean: "津貼", tip: "[aʊ] 是大口音。" },
+          { word: "Receipt", kk: "[rɪˋsit]", mean: "收據", tip: "超級易錯！p 不發音。" },
+          { word: "Incur", kk: "[ɪnˋkɝ]", mean: "產生(費用)", tip: "[kɝ] 捲舌長音。" },
+          { word: "Submit", kk: "[səbˋmɪt]", mean: "呈交", tip: "[b] 接 [m]，嘴唇閉一次即可。" }
+        ],
+        sentences: [
+          { id: "s5-1", text: "Are you <span class='highlight-kw'>done with</span> the invitation letters?", plain: "Are you done with the invitation letters?", mean: "邀請函妳完成了嗎？", tip: "Done with 的 n 和 w 連讀。" },
+          { id: "s5-2", text: "They will be <span class='highlight-kw'>reimbursed for</span> the <span class='highlight-kw'>actual costs</span> of travel.", plain: "They will be reimbursed for the actual costs of travel.", mean: "他們將獲得差旅費的實報實銷。", tip: "Reimbursed for 的 d 輕帶過。" },
+          { id: "s5-3", text: "We only <span class='highlight-kw'>pay for</span> the <span class='highlight-kw'>economy class</span>.", plain: "We only pay for the economy class.", mean: "我們只支付經濟艙的費用。", tip: "economy 重音在 co。" },
+          { id: "s5-4", text: "We won't be able to reimburse expenses <span class='highlight-kw'>incurred by</span> spouses.", plain: "We won't be able to reimburse expenses incurred by spouses.", mean: "我們無法核銷配偶產生的費用。", tip: "incurred by 連音。" },
+          { id: "s5-5", text: "Please <span class='highlight-kw'>inform them</span> that the <span class='highlight-kw'>daily allowance</span> is NT$ 1500.", plain: "Please inform them that the daily allowance is NT$ 1500.", mean: "請告知他們每日津貼是 1500 元。", tip: "allowance [laʊ] 音要飽滿。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-5-1", plain: "We only pay for the economy class.", chinese: "我們只支付經濟艙的費用。",
+            parts: [
+              { type: "fixed", text: "We only " },
+              { id: "v1", type: "variable", options: ["pay for", "cover", "reimburse"], answer: "" },
+              { type: "fixed", text: " the " },
+              { id: "v2", type: "variable", options: ["economy class", "standard rooms", "basic meals"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-5-2", plain: "He needs to take care of his wife's travel expenses on his own.", chinese: "他需要自行負擔他太太的旅費。",
+            parts: [
+              { type: "fixed", text: "He needs to " },
+              { id: "v1", type: "variable", options: ["take care of", "pay for", "handle"], answer: "" },
+              { type: "fixed", text: " his wife's travel expenses " },
+              { id: "v2", type: "variable", options: ["on his own", "out of pocket", "personally"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-5-3", plain: "Do they need to submit the original receipts for reimbursement?", chinese: "他們需要繳交原始收據來核銷嗎？",
+            parts: [
+              { type: "fixed", text: "Do they need to " },
+              { id: "v1", type: "variable", options: ["submit", "provide", "hand in"], answer: "" },
+              { type: "fixed", text: " the " },
+              { id: "v2", type: "variable", options: ["original receipts", "digital copies", "invoices"], answer: "" },
+              { type: "fixed", text: " for reimbursement?" }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 6", title: "緊急變更", themeColor: "indigo",
+        objectives: ["應對突發危機與打斷會議的禮貌用語", "傳達壞消息與表達同理心", "迅速提出替代方案與感謝協助"],
+        pronunciation: "加強 [st], [tr], [pr] 等子音叢(Consonant Clusters) 的不送氣與連讀技巧。",
+        vocab: [
+          { word: "Urgent", kk: "[ˋɝdʒənt]", mean: "緊急的", tip: "Ur- 要捲舌發 [ɝ]。" },
+          { word: "Stockholm", kk: "[ˋstɑk͵hom]", mean: "斯德哥爾摩", tip: "[st] 不送氣！" },
+          { word: "Hijacked", kk: "[ˋhaɪdʒækt]", mean: "被劫持的", tip: "ed 發 [t] 的音。" },
+          { word: "Terrified", kk: "[ˋtɛrə͵faɪd]", mean: "嚇壞了", tip: "第一音節重音。" },
+          { word: "Traumatic", kk: "[traʊˋmætɪk]", mean: "創傷的", tip: "[aʊ] 是大口音。" },
+          { word: "Frustration", kk: "[frʌˋstreʃən]", mean: "挫折；沮喪", tip: "[str] 不送氣。" },
+          { word: "Struggle", kk: "[ˋstrʌg!]", mean: "掙扎", tip: "[str] 不送氣。" },
+          { word: "Replace", kk: "[rɪˋples]", mean: "取代", tip: "Place 的 [p] 要噴氣。" }
+        ],
+        sentences: [
+          { id: "s6-1", text: "Hi, John, <span class='highlight-kw'>do you have a minute</span>?", plain: "Hi, John, do you have a minute?", mean: "嗨 John，你有空嗎？", tip: "Have a 必連音 [hæ-və]。" },
+          { id: "s6-2", text: "Could we <span class='highlight-kw'>get down to business</span>?", plain: "Could we get down to business?", mean: "我們可以直接說重點嗎？", tip: "Business 只有兩個音節 [bɪz-nɪs]。" },
+          { id: "s6-3", text: "They must have been <span class='highlight-kw'>terrified</span>.", plain: "They must have been terrified.", mean: "他們一定嚇壞了。", tip: "Must have 口語縮讀為 [mʌst-əv]。" },
+          { id: "s6-4", text: "Can you find someone to <span class='highlight-kw'>replace</span> him at such <span class='highlight-kw'>short notice</span>?", plain: "Can you find someone to replace him at such short notice?", mean: "妳能在這麼短的時間內找人接替他嗎？", tip: "Short notice 的 t 接 n 鼻腔爆破。" },
+          { id: "s6-5", text: "I totally understand your <span class='highlight-kw'>frustration</span>. I <span class='highlight-kw'>owe you one</span>.", plain: "I totally understand your frustration. I owe you one.", mean: "我完全理解妳的挫折。我欠你一個人情。", tip: "Owe you 連音 [o-ju]。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-6-1", plain: "Can I get back to you later?", chinese: "我可以稍後再回覆你嗎？",
+            parts: [
+              { type: "fixed", text: "Can I " },
+              { id: "v1", type: "variable", options: ["get back to you", "call you back", "discuss this"], answer: "" },
+              { type: "fixed", text: " later?" }
+            ]
+          },
+          {
+            id: "cia-6-2", plain: "I guess they are still struggling to cope with this traumatic event.", chinese: "我想他們仍在努力平復這一創傷事件。",
+            parts: [
+              { type: "fixed", text: "I guess they are still " },
+              { id: "v1", type: "variable", options: ["struggling to cope with", "trying to process", "recovering from"], answer: "" },
+              { type: "fixed", text: " this " },
+              { id: "v2", type: "variable", options: ["traumatic event", "sudden change", "difficult situation"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-6-3", plain: "A couple of names have just crossed my mind.", chinese: "我剛想到幾個人名。",
+            parts: [
+              { type: "fixed", text: "A couple of " },
+              { id: "v1", type: "variable", options: ["names", "ideas", "solutions"], answer: "" },
+              { type: "fixed", text: " have just " },
+              { id: "v2", type: "variable", options: ["crossed my mind", "popped up", "occurred to me"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 7", title: "特殊需求", themeColor: "teal",
+        objectives: ["具備與飯店確認特殊房型與餐飲安排的能力", "認識各類宗教飲食禁忌的英文表達", "展現卓越的服務熱忱與執行力承諾"],
+        pronunciation: "強化 [m] 結尾的閉唇練習 (如 Confirm, Problem) 與特定飲食字彙發音。",
+        vocab: [
+          { word: "Confirm", kk: "[kənˋfɝm]", mean: "確認", tip: "[m] 閉嘴練習。" },
+          { word: "Arrangement", kk: "[əˋrendʒmənt]", mean: "安排", tip: "重音在 range。" },
+          { word: "Accommodation", kk: "[ə͵kɑməˋdeʃən]", mean: "住宿", tip: "雙 m 出現！" },
+          { word: "Variety", kk: "[vəˋraɪətɪ]", mean: "各式各樣", tip: "重音在 ri。" },
+          { word: "Religious", kk: "[rɪˋlɪdʒəs]", mean: "宗教的", tip: "重音在 li。" },
+          { word: "Strict", kk: "[strɪkt]", mean: "嚴格的", tip: "[str] 不送氣！" },
+          { word: "Leeks", kk: "[liks]", mean: "韭菜", tip: "[i] 是長母音。" },
+          { word: "See to it", kk: "[si tu ɪt]", mean: "確實執行", tip: "三個字連成一氣。" }
+        ],
+        sentences: [
+          { id: "s7-1", text: "I'm calling to <span class='highlight-kw'>confirm</span> the <span class='highlight-kw'>arrangements</span>.", plain: "I'm calling to confirm the arrangements.", mean: "我打來確認安排。", tip: "Confirm 的 m 閉嘴。" },
+          { id: "s7-2", text: "Do you have any <span class='highlight-kw'>special requests</span> for the dinner?", plain: "Do you have any special requests for the dinner?", mean: "晚餐有什麼特別要求嗎？", tip: "Requests 結尾 sts 氣音輕。" },
+          { id: "s7-3", text: "Make sure that your chef can prepare a <span class='highlight-kw'>variety of</span> dishes.", plain: "Make sure that your chef can prepare a variety of dishes.", mean: "請確保廚師能準備各種料理。", tip: "Variety of 連音。" },
+          { id: "s7-4", text: "Do not serve anything containing <span class='highlight-kw'>pork</span>, <span class='highlight-kw'>blood</span>, or <span class='highlight-kw'>wine</span>.", plain: "Do not serve anything containing pork, blood, or wine.", mean: "不要提供含豬肉、血或酒的餐點。", tip: "Blood 母音是 [ʌ]。" },
+          { id: "s7-5", text: "I'll try my best to <span class='highlight-kw'>see to it</span> that all needs are satisfied.", plain: "I'll try my best to see to it that all needs are satisfied.", mean: "我會盡力確認所有需求都得到滿足。", tip: "See to it 連讀。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-7-1", plain: "Make sure that your chef can prepare a variety of dishes.", chinese: "請確保您的廚師能準備各種料理。",
+            parts: [
+              { type: "fixed", text: "Make sure that your " },
+              { id: "v1", type: "variable", options: ["chef", "team", "staff"], answer: "" },
+              { type: "fixed", text: " can prepare a " },
+              { id: "v2", type: "variable", options: ["variety of dishes", "customized menu", "buffet selection"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-7-2", plain: "Some clients are strict vegetarians who can't have eggs.", chinese: "有些客戶是嚴格的素食者，不吃蛋。",
+            parts: [
+              { type: "fixed", text: "Some clients are strict " },
+              { id: "v1", type: "variable", options: ["vegetarians", "vegans", "Muslims"], answer: "" },
+              { type: "fixed", text: " who can't have " },
+              { id: "v2", type: "variable", options: ["eggs", "dairy products", "pork"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-7-3", plain: "I'll try my best to see to it that all your needs are satisfied.", chinese: "我會盡力確認您的所有需求都得到滿足。",
+            parts: [
+              { type: "fixed", text: "I'll try my best to " },
+              { id: "v1", type: "variable", options: ["see to it", "make sure", "ensure"], answer: "" },
+              { type: "fixed", text: " that all your " },
+              { id: "v2", type: "variable", options: ["needs are satisfied", "requests are met", "concerns are addressed"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      },
+      {
+        unitId: "Unit 8", title: "Dress Code", themeColor: "purple",
+        objectives: ["能用英文討論與確認職場晚宴的著裝標準", "學會表達自身對社交場合的感受與顧慮", "給予同事得體的建議並達成共識"],
+        pronunciation: "精準掌握 [p] 音在不同單字中的「送氣與不送氣」法則。",
+        vocab: [
+          { word: "Reception", kk: "[rɪˋsɛpʃən]", mean: "歡迎會", tip: "[p] 閉唇練習。重音在 sep。" },
+          { word: "Cocktail", kk: "[ˋkɑk͵tel]", mean: "雞尾酒", tip: "重音第一音節。" },
+          { word: "Formal", kk: "[ˋfɔrməl]", mean: "正式", tip: "[ɔr] 嘴圓捲舌。" },
+          { word: "Attire", kk: "[əˋtaɪr]", mean: "服裝", tip: "重音在後。" },
+          { word: "Professional", kk: "[prəˋfɛʃənəl]", mean: "專業的", tip: "[p] 爆破。" },
+          { word: "Casual", kk: "[ˋkæʒʊəl]", mean: "休閒的", tip: "重音第一。" },
+          { word: "Sparkling", kk: "[ˋspɑrklɪŋ]", mean: "氣泡的", tip: "[p] 不送氣。" },
+          { word: "Suggestion", kk: "[səˋdʒɛstʃən]", mean: "建議", tip: "g 發 [dʒ]。" }
+        ],
+        sentences: [
+          { id: "s8-1", text: "I <span class='highlight-kw'>can't wait to</span> put on my cocktail dress.", plain: "I can't wait to put on my cocktail dress.", mean: "我等不及要穿上我的雞尾酒禮服。", tip: "Can't wait to 的 t 省略。" },
+          { id: "s8-2", text: "It's not a black tie event, but it's <span class='highlight-kw'>definitely formal</span>.", plain: "It's not a black tie event, but it's definitely formal.", mean: "不至於要打黑領結，但也算是正式場合。", tip: "Formal 的 [l] 頂上齒齦。" },
+          { id: "s8-3", text: "I know it's hard to be <span class='highlight-kw'>comfortable</span> and <span class='highlight-kw'>professional</span>.", plain: "I know it's hard to be comfortable and professional.", mean: "我知道要兼顧舒適與專業很難。", tip: "Professional 重音 fesh。" },
+          { id: "s8-4", text: "I can <span class='highlight-kw'>cover your shift</span> if you need to go back.", plain: "I can cover your shift if you need to go back.", mean: "若你需要回去，我可以代班。", tip: "cover your 連音。" },
+          { id: "s8-5", text: "It's an <span class='highlight-kw'>order</span>, not a <span class='highlight-kw'>suggestion</span>.", plain: "It's an order, not a suggestion.", mean: "這是命令不是建議。", tip: "Order 重音在前。" }
+        ],
+        ciaDrills: [
+          {
+            id: "cia-8-1", plain: "I can't wait to put on my cocktail dress.", chinese: "我等不及要穿上我的雞尾酒禮服。",
+            parts: [
+              { type: "fixed", text: "I " },
+              { id: "v1", type: "variable", options: ["can't wait to", "am excited to", "am planning to"], answer: "" },
+              { type: "fixed", text: " put on my " },
+              { id: "v2", type: "variable", options: ["cocktail dress", "business suit", "formal attire"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-8-2", plain: "I can cover your shift if you need to go back to the hotel.", chinese: "若你需要回飯店，我可以代班。",
+            parts: [
+              { type: "fixed", text: "I can " },
+              { id: "v1", type: "variable", options: ["cover your shift", "take your place", "handle things here"], answer: "" },
+              { type: "fixed", text: " if you need to " },
+              { id: "v2", type: "variable", options: ["go back to the hotel", "freshen yourself up", "change your clothes"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          },
+          {
+            id: "cia-8-3", plain: "Maybe it's a good opportunity to expand social networking.", chinese: "也許這是擴展人脈的好機會。",
+            parts: [
+              { type: "fixed", text: "Maybe it's a good " },
+              { id: "v1", type: "variable", options: ["opportunity", "chance", "time"], answer: "" },
+              { type: "fixed", text: " to " },
+              { id: "v2", type: "variable", options: ["expand social networking", "meet potential buyers", "exchange business cards"], answer: "" },
+              { type: "fixed", text: "." }
+            ]
+          }
+        ]
+      }
+    ];
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, Fragment } = React;
+    const { createPortal } = ReactDOM;
+
+    let globalRecognition = null;
+    let globalTimeout = null;
+
+    const getSharedRecognition = () => {
+      if (!globalRecognition) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRec) {
+          globalRecognition = new SpeechRec();
+          globalRecognition.lang = 'en-US';
+          globalRecognition.interimResults = false;
+          globalRecognition.maxAlternatives = 1;
+          globalRecognition.continuous = false;
+        }
+      }
+      return globalRecognition;
+    };
+
+    const Icon = ({ children, className, ...p }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...p}>{children}</svg>;
+    const BookOpen = (p) => <Icon {...p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></Icon>;
+    const MessageCircle = (p) => <Icon {...p}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></Icon>;
+    const Target = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Icon>;
+    const Volume2 = (p) => <Icon {...p}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></Icon>;
+    const Crosshair = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></Icon>;
+    const Mic = (p) => <Icon {...p}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></Icon>;
+    const Check = (p) => <Icon {...p}><polyline points="20 6 9 17 4 12"/></Icon>;
+    const Zap = (p) => <Icon {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></Icon>;
+    const Play = (p) => <Icon {...p}><polygon points="5 3 19 12 5 21 5 3"/></Icon>;
+    const Lightbulb = (p) => <Icon {...p}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2 1.5-3.5 0-3-2.5-5.5-5.5-5.5S7 5 7 8c0 1.5.5 2.5 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></Icon>;
+    const X = (p) => <Icon {...p}><path d="M18 6 6 18"/><path d="m6 6 18 18"/></Icon>;
+    const AlertCircle = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></Icon>;
+    const Filter = (p) => <Icon {...p}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></Icon>;
+
+    const speakText = (t, r = 0.85, c = null) => {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = 'en-US'; u.rate = r;
+      if (c) u.onend = (e) => c(e);
+      window.speechSynthesis.speak(u);
+    };
+
+    const cleanText = (t) => t ? t.replace(/<[^>]*>/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~?]/g, "").replace(/\s{2,}/g, " ").trim().toLowerCase() : "";
+
+    const InteractiveSentence = ({ htmlContent }) => {
+      const regex = /(<span class='[^']+'>.*?<\/span>)|([^<]+)/g;
+      const parts = htmlContent.match(regex) || [];
+      const handleClick = (e, w) => { e.stopPropagation(); speakText(w.replace(/[.,?!:;|]/g, ''), 0.75); };
+      
+      return (
+        <span className="leading-relaxed">
+          {parts.map((p, i) => {
+            if (p.startsWith('<span')) {
+              const c = p.match(/>(.*?)<\//)[1];
+              return (
+                <span key={i} className="text-indigo-600 font-bold border-b-2 border-indigo-200">
+                  {c.split(' ').map((w, wi) => (
+                    <Fragment key={wi}><span onClick={(e) => handleClick(e, w)} className="cursor-pointer hover:bg-indigo-100 rounded px-0.5">{w}</span>{wi < c.split(' ').length - 1 && ' '}</Fragment>
+                  ))}
+                </span>
+              );
+            } else {
+              return (
+                <span key={i}>
+                  {p.split(' ').map((w, wi) => (
+                    <Fragment key={wi}><span onClick={(e) => handleClick(e, w)} className="cursor-pointer hover:bg-yellow-200 rounded px-0.5">{w}</span>{wi < p.split(' ').length - 1 && ' '}</Fragment>
+                  ))}
+                </span>
+              );
+            }
+          })}
+        </span>
+      );
+    };
+
+    const CIACard = ({ drill, onRecord, recState }) => {
+      const [isActive, setIsActive] = useState(false);
+      const [selections, setSelections] = useState({});
+      const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+      const handleActivate = () => {
+        if (!isActive) {
+          setIsAudioPlaying(true);
+          speakText(drill.plain, 0.85, () => {
+            setIsAudioPlaying(false);
+            setIsActive(true);
+          });
+        }
+      };
+
+      const toggleSelection = (partId, options) => {
+        setSelections(prev => {
+          const currentIdx = prev[partId] !== undefined ? prev[partId] : 0;
+          return { ...prev, [partId]: (currentIdx + 1) % options.length };
+        });
+      };
+
+      const currentSentence = drill.parts.map(p => {
+        if (p.type === 'fixed') return p.text;
+        const selIdx = selections[p.id] || 0;
+        return p.options[selIdx];
+      }).join('');
+
+      return (
+        <div className={`bg-white rounded-2xl border-2 transition-all duration-500 overflow-hidden shadow-sm hover:shadow-md ${isActive ? 'border-indigo-400 ring-4 ring-indigo-50' : 'border-gray-200 cursor-pointer'}`} onClick={!isActive ? handleActivate : undefined}>
+          <div className="p-6 flex items-center justify-between">
+            <div>
+              <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full mb-3 uppercase tracking-wider"><Crosshair className="w-3 h-3 inline mr-1 -mt-0.5"/>CIA Pattern Drill</span>
+              <h3 className="text-xl font-serif-en text-gray-800 font-bold mb-1">{drill.plain}</h3>
+              <p className="text-gray-500 text-sm">{drill.chinese}</p>
+            </div>
+            {!isActive && (
+              <button className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md transition-all ${isAudioPlaying ? 'bg-indigo-400 animate-pulse-ring' : 'bg-indigo-600 hover:scale-110'}`}>
+                {isAudioPlaying ? <Volume2 className="w-6 h-6 animate-pulse"/> : <Play className="w-6 h-6 ml-1"/>}
+              </button>
+            )}
+          </div>
+
+          {isActive && (
+            <div className="bg-indigo-50/50 p-6 border-t border-indigo-100 animate-fade-in">
+              <div className="mb-4 text-sm text-indigo-800 font-medium flex items-center bg-indigo-100/50 inline-block px-3 py-1.5 rounded-lg">
+                <Lightbulb className="w-4 h-4 mr-2"/>教練提示：點擊虛線框替換情境詞彙，組合出您的專屬句子後按下麥克風！
+              </div>
+              
+              <div className="text-2xl font-serif-en leading-loose text-gray-800 mb-8 flex flex-wrap items-center">
+                {drill.parts.map((p, i) => {
+                  if (p.type === 'fixed') return <span key={i} className="mr-1">{p.text}</span>;
+                  const selIdx = selections[p.id] || 0;
+                  return (
+                    <button key={i} onClick={(e) => { e.stopPropagation(); toggleSelection(p.id, p.options); }} className="cia-variable-btn mx-1 px-3 py-1 bg-white border-2 border-dashed border-indigo-400 text-indigo-700 font-bold rounded-lg hover:bg-indigo-50 shadow-sm relative group">
+                      {p.options[selIdx]}
+                      <span className="absolute -top-3 -right-2 bg-indigo-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">換</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-end items-center gap-4">
+                <button onClick={(e) => { e.stopPropagation(); speakText(currentSentence); }} className="flex items-center text-gray-500 hover:text-indigo-600 text-sm font-bold bg-white px-4 py-2 border border-gray-200 rounded-full shadow-sm transition-all hover:border-indigo-300">
+                  <Volume2 className="w-4 h-4 mr-2"/>教練示範
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); onRecord(drill.id, currentSentence); }} className={`flex items-center text-white text-base font-bold px-6 py-3 rounded-full shadow-lg transition-all ${recState.activeId === drill.id && recState.status === 'listening' ? 'bg-red-500 animate-pulse-ring' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl hover:-translate-y-1'}`}>
+                  {recState.activeId === drill.id && recState.status === 'listening' ? (
+                    <><div className="flex items-center gap-1 mr-2"><div className="wave-bar"/><div className="wave-bar"/><div className="wave-bar"/></div> 錄音中...</>
+                  ) : (
+                    <><Mic className="w-5 h-5 mr-2"/> 開口練習</>
+                  )}
+                </button>
+              </div>
+
+              {recState.feedbackMap[drill.id] && (
+                <div className={`mt-6 p-4 rounded-xl border ${recState.feedbackMap[drill.id].type === 'success' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'} animate-fade-in`}>
+                  <div className="flex items-center gap-2 mb-2 font-bold">
+                    {recState.feedbackMap[drill.id].type === 'success' ? <Check className="w-5 h-5 text-green-600"/> : <Zap className="w-5 h-5 text-yellow-600"/>}
+                    <span className={recState.feedbackMap[drill.id].type === 'success' ? 'text-green-800' : 'text-yellow-800'}>
+                      {recState.feedbackMap[drill.id].text} ({recState.feedbackMap[drill.id].score}%)
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 bg-white p-3 rounded-lg border border-gray-100 shadow-inner mt-2">
+                    <span className="text-gray-400 block mb-1 text-xs">AI 聽到的是：</span>
+                    <i className="text-gray-800 font-serif-en">{recState.feedbackMap[drill.id].spokenText}</i>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const StartScreen = ({ onStart }) => (
+      <div className="fixed inset-0 z-[9999] bg-slate-900 flex flex-col overflow-y-auto">
+        <div className="min-h-full flex flex-col items-center justify-center p-4">
+          <div className="max-w-md w-full bg-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-700 text-center relative overflow-hidden my-auto">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 text-blue-400 ring-4 ring-slate-600/50">
+              <Mic className="w-8 h-8" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight text-white">商務英語會話特訓</h1>
+            <p className="text-slate-400 mb-6 text-sm leading-relaxed">
+              為了確保最佳的練習體驗，我們需要先取得您的麥克風權限。<br/><br/>
+              <span className="text-blue-300 font-medium bg-blue-900/30 px-2 py-1 rounded">點擊一次允許，全程無縫練習</span>
+            </p>
+            <button onClick={onStart} className="group w-full relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-bold text-white transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-blue-500/30 active:scale-95">
+              <span>開啟麥克風並開始</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+
+    const App = () => {
+      const [hasStarted, setHasStarted] = useState(false);
+      const [activeTab, setActiveTab] = useState('cia');
+      const [selectedUnitId, setSelectedUnitId] = useState(window.lecturesData[0].unitId);
+      const [recState, setRecState] = useState({ activeId: null, status: 'idle', feedbackMap: {} });
+
+      const handleStartApp = async () => {
+        const r = getSharedRecognition();
+        if (r) {
+          try { r.start(); setTimeout(() => { r.stop(); setHasStarted(true); }, 100); } 
+          catch (e) { setHasStarted(true); }
+        } else {
+          alert("瀏覽器不支援語音"); setHasStarted(true);
+        }
+      };
+
+      const currentUnit = useMemo(() => window.lecturesData.find(u => u.unitId === selectedUnitId) || window.lecturesData[0], [selectedUnitId]);
+
+      const handleRecord = (id, targetText) => {
+        if (recState.activeId === id && recState.status === 'listening') {
+           setRecState(p => ({ ...p, status: 'idle', activeId: null }));
+           if (globalRecognition) { try { globalRecognition.stop(); } catch(e){} }
+           return;
+        }
+        const r = getSharedRecognition();
+        if (!r) return;
+        
+        setRecState(p => ({ ...p, activeId: id, status: 'listening', feedbackMap: { ...p.feedbackMap, [id]: null } }));
+        
+        r.onresult = (e) => {
+          const sp = e.results[0][0].transcript;
+          const tc = cleanText(targetText); const sc = cleanText(sp);
+          const tw = tc.split(' '); const sw = sc.split(' ');
+          let mc = 0;
+          tw.forEach(w => { if (sw.some(x => x === w || (x.length > 3 && (x.includes(w) || w.includes(x))))) mc++; });
+          let acc = tw.length > 0 ? Math.round((mc / tw.length) * 100) : 0;
+          if (tw.length <= 3 && sc === tc) acc = 100;
+          
+          let ft = acc >= 90 ? 'success' : 'warning';
+          let fm = acc >= 90 ? '完美發音！' : '很棒！再注意一下連音會更好。';
+          if (acc < 60) { ft = 'error'; fm = '請再試一次！'; }
+          
+          setRecState(p => ({ ...p, status: 'idle', feedbackMap: { ...p.feedbackMap, [id]: { type: ft, text: fm, score: acc, spokenText: sp, targetText: targetText } } }));
+        };
+        r.onend = () => setRecState(p => { if(p.activeId === id) return {...p, status: 'idle'}; return p; });
+        try { r.start(); } catch(e) { try { r.stop(); setTimeout(()=>r.start(),100); } catch(er){} }
+      };
+
+      const th = currentUnit.themeColor;
+
+      if (!hasStarted) return <StartScreen onStart={handleStartApp} />;
+
+      return (
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-24 min-h-screen animate-fade-in">
+          <header className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className={`p-2 bg-${th}-100 text-${th}-600 rounded-xl`}><Target className="w-6 h-6"/></div>
+              <h1 className="text-3xl font-bold text-gray-800 tracking-tight">商務英語會話大腦</h1>
+            </div>
+            <p className="text-gray-500 font-medium pl-11">NLP 認知學習法・V2 旗艦版</p>
+          </header>
+
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-600 font-bold min-w-max">
+              <Filter className="w-5 h-5"/> 選擇特訓單元：
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full hide-scrollbar">
+              {window.lecturesData.map(u => (
+                <button key={u.unitId} onClick={() => setSelectedUnitId(u.unitId)} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap flex-shrink-0 ${selectedUnitId === u.unitId ? `bg-${u.themeColor}-600 text-white shadow-md transform scale-105` : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}>
+                  {u.unitId}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={`bg-gradient-to-br from-${th}-50 to-white p-6 rounded-2xl shadow-sm border border-${th}-100 mb-8`}>
+            <h2 className={`text-lg font-bold text-${th}-800 mb-4 flex items-center`}><Target className="w-5 h-5 mr-2"/> {currentUnit.title} - 本課目標</h2>
+            <ul className="space-y-2 mb-4">
+              {currentUnit.objectives.map((obj, i) => (
+                <li key={i} className="flex items-start text-gray-700 text-sm font-medium"><Check className={`w-4 h-4 mr-2 text-${th}-500 flex-shrink-0 mt-0.5`}/> {obj}</li>
+              ))}
+            </ul>
+            <div className={`bg-${th}-100/50 p-3 rounded-lg flex items-start text-sm text-${th}-800 font-medium border border-${th}-200/50`}>
+              <Zap className={`w-4 h-4 mr-2 text-${th}-600 mt-0.5 flex-shrink-0`}/> 
+              <span><strong>發音心法：</strong>{currentUnit.pronunciation}</span>
+            </div>
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
+            <button onClick={() => setActiveTab('cia')} className={`px-6 py-3 rounded-full text-sm font-bold flex items-center transition-all ${activeTab === 'cia' ? 'bg-gray-800 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`}><Crosshair className="w-4 h-4 mr-2"/>CIA 實戰特訓</button>
+            <button onClick={() => setActiveTab('sentences')} className={`px-6 py-3 rounded-full text-sm font-bold flex items-center transition-all ${activeTab === 'sentences' ? 'bg-gray-800 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`}><MessageCircle className="w-4 h-4 mr-2"/>情境句型</button>
+            <button onClick={() => setActiveTab('vocab')} className={`px-6 py-3 rounded-full text-sm font-bold flex items-center transition-all ${activeTab === 'vocab' ? 'bg-gray-800 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`}><BookOpen className="w-4 h-4 mr-2"/>關鍵單字</button>
+          </div>
+
+          <div className="animate-fade-in">
+            {activeTab === 'cia' && (
+              <div className="space-y-6">
+                <div className="bg-gray-800 text-white p-4 rounded-xl flex items-start gap-3 shadow-md">
+                  <Lightbulb className="w-6 h-6 text-yellow-400 flex-shrink-0"/>
+                  <div className="text-sm leading-relaxed">
+                    <strong className="text-yellow-400 text-base block mb-1">給慧楨的 NLP 特訓指南：</strong>
+                    點擊下方卡片，系統會<span className="text-blue-300 font-bold">先播放一次標準發音</span>。等您的大腦建立安全感後再展開互動，點擊虛線單字替換情境，最後按下麥克風大聲說出來！
+                  </div>
+                </div>
+                {currentUnit.ciaDrills.map((drill) => (
+                  <CIACard key={drill.id} drill={drill} onRecord={handleRecord} recState={recState} />
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'sentences' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="divide-y divide-gray-50">
+                  {currentUnit.sentences.map((it) => (
+                    <div key={it.id} className="p-6 hover:bg-gray-50 transition-colors group">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="text-xl md:text-2xl text-gray-800 font-serif-en mb-2">
+                            <InteractiveSentence htmlContent={it.text} />
+                          </div>
+                          <p className="text-gray-600 font-medium text-sm mb-2">{it.mean}</p>
+                          <div className="inline-flex items-start text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
+                            <Info className="w-3 h-3 mr-1.5 mt-0.5 text-gray-400" />{it.tip}
+                          </div>
+                        </div>
+                        <button onClick={() => speakText(it.plain)} className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-110 bg-${currentUnit.themeColor}-500 flex-shrink-0`}>
+                          <Volume2 className="w-5 h-5"/>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'vocab' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentUnit.vocab.map((w, wi) => (
+                  <div key={wi} onClick={() => speakText(w.word)} className={`bg-white border border-${currentUnit.themeColor}-100 p-5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer group`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-bold text-gray-800">{w.word}</h3>
+                      <Volume2 className={`w-5 h-5 text-${currentUnit.themeColor}-300 group-hover:text-${currentUnit.themeColor}-600`} />
+                    </div>
+                    <div className="text-sm font-bold text-gray-500 mb-3">{w.kk} • {w.mean}</div>
+                    <div className={`text-xs text-${currentUnit.themeColor}-800 bg-${currentUnit.themeColor}-50 p-2 rounded flex items-start`}>
+                       <Lightbulb className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0"/> {w.tip}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
